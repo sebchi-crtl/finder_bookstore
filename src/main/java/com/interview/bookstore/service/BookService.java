@@ -4,6 +4,8 @@ import com.interview.bookstore.dao.BookStoreRepo;
 import com.interview.bookstore.dto.BookRequestDTO;
 import com.interview.bookstore.dto.BookResponseDTO;
 import com.interview.bookstore.entity.Book;
+import com.interview.bookstore.exception.BookNotFoundException;
+import com.interview.bookstore.exception.RequestValidationException;
 import com.interview.bookstore.mapper.BookMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,7 +28,7 @@ public class BookService implements IBookService{
         try{
             return bookStoreRepo.findAll()
                     .stream()
-                    .map(bookResponseDTOMapper)
+                    .map(mapper)
                     .collect(Collectors.toList());
         }
         catch (Exception ex){
@@ -41,21 +42,23 @@ public class BookService implements IBookService{
     @Override
     public BookResponseDTO getBookById(Long id) {
 
-        return bookStoreRepo.findById(id)
-                .orElseThrow(() -> new BookNotFoundException(id));
-
+        Book book = bookStoreRepo.findById(id)
+                .orElseThrow(() -> new BookNotFoundException(
+                        "book with id [%s] not found: ".formatted(id)));
+        return mapper.apply(book);
     }
 
     @Override
     public BookResponseDTO addBook(BookRequestDTO book) {
         try{
 
-            Book newBook = new Book();
-            newBook.setTitle(book.title());
-            newBook.setAuthor(book.author());
-            newBook.setAvailable(book.available());
-            newBook.setDateCreated(LocalDateTime.now());
-
+            Book newBook = Book
+                    .builder()
+                    .title(book.title())
+                    .author(book.author())
+                    .available(book.available())
+                    .dateCreated(LocalDateTime.now())
+                    .build();
             Book saveBook = bookStoreRepo.save(newBook);
             return mapper.apply(saveBook);
         }
@@ -71,7 +74,7 @@ public class BookService implements IBookService{
 
             Book bookId = bookStoreRepo.findById(id)
                     .orElseThrow(
-                            () -> RequestValidationException("An error occurred. Please try again")
+                            () -> new RequestValidationException("An error occurred. Please try again")
                     );
 
             Book updateBook = Book
