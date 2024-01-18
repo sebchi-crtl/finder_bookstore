@@ -1,0 +1,25 @@
+server:
+  port: 8050
+  error:
+    include-message: always
+#  docker:
+#    compose:
+#      enable: true
+#      file: docker-compose.yml
+
+spring:
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: bookstore
+
+cors:
+  allowed-methods: "*"
+  allowed-headers: "*"
+
+logging:
+  level:
+    org:
+      springframework:
+        security: TRACE

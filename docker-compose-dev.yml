@@ -1,0 +1,71 @@
+version: '3.8'
+
+
+services:
+  postgres:
+    container_name: postgres_container
+    image: postgres
+    environment:
+      POSTGRES_USER: bookstore
+      POSTGRES_PASSWORD: admin
+      PGDATA: /data/postgres
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - "5434:5432"
+    networks:
+      - postgres
+    restart: unless-stopped
+
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL= admin@localhost.com
+      - PGADMIN_DEFAULT_PASSWORD= admin
+    volumes:
+      - pgadmin:/root/.pgadmin
+    ports:
+      - "5056:80"
+    networks:
+      - postgres
+    restart: unless-stopped
+
+# use for mysql
+#  mysql:
+#    container_name: mysql
+#    image: mysql:8.0
+#    environment:
+#      MYSQL_ROOT_PASSWORD: root
+#    volumes:
+#      - mysql:/var/lib/mysql
+#
+#    ports:
+#      - "3308:3306"
+#    networks:
+#      - mysql
+#
+#  phpmyadmin:
+#    container_name: phpmyadmin
+#    image: phpmyadmin/phpmyadmin
+#    environment:
+#      PMA_HOST: mysql
+#      PMA_USER: root
+#      PMA_PASSWORD: root
+#    ports:
+#      - "5052:80"
+#    networks:
+#      - mysql
+#    restart: always
+
+networks:
+  postgres:
+    driver: bridge
+#  mysql:
+#    driver: bridge
+
+volumes:
+  postgres:
+  pgadmin:
+#  mysql:
+#  phpmyadmin:
