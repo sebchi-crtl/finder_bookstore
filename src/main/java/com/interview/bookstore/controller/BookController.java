@@ -2,7 +2,6 @@ package com.interview.bookstore.controller;
 
 import com.interview.bookstore.dto.BookRequestDTO;
 import com.interview.bookstore.dto.BookResponseDTO;
-import com.interview.bookstore.entity.Book;
 import com.interview.bookstore.service.IBookService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,8 +29,17 @@ public class BookController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public BookResponseDTO getBookById(@PathVariable Long id) {
-        return bookService.getBookById(id);
+    public ResponseEntity<?> getBookById(@PathVariable Long id) {
+        try {
+            BookResponseDTO book = bookService.getBookById(id);
+            if (book != null) {
+                return ResponseEntity.ok(book);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Book not found");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal server error");
+        }
     }
 
     @PostMapping
