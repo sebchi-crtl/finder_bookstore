@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.interview.bookstore.constant.BookConstant.*;
+
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/v1/book")
@@ -35,10 +37,10 @@ public class BookController {
             if (book != null) {
                 return ResponseEntity.ok(book);
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Book not found");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(BOOK_ID_NOT_FOUND);
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal server error");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(SERVER_ERROR);
         }
     }
 
@@ -58,6 +60,6 @@ public class BookController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteBook(@PathVariable Long id) {
         bookService.deleteBook(id);
-        return new ResponseEntity<>("deletion successful with id = " + id, HttpStatus.OK);
+        return new ResponseEntity<>(DELETE_SUCCESS + id, HttpStatus.OK);
     }
 }

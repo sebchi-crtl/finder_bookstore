@@ -15,6 +15,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.interview.bookstore.constant.BookConstant.*;
+
 @Service
 @AllArgsConstructor
 @Slf4j
@@ -34,7 +36,7 @@ public class BookService implements IBookService{
         catch (Exception ex){
             log.error("error fetching" );
             log.error(ex.getMessage());
-            throw new BookNotFoundException("error getting list of books " );
+            throw new BookNotFoundException(LIST_FETCHING_ERROR);
         }
 
     }
@@ -44,7 +46,7 @@ public class BookService implements IBookService{
 
         Book book = bookStoreRepo.findById(id)
                 .orElseThrow(() -> new BookNotFoundException(
-                        "book with id [%s] not found: ".formatted(id)));
+                        BOOK_ID_NOT_FOUND.formatted(id)));
         return mapper.apply(book);
     }
 
@@ -64,7 +66,7 @@ public class BookService implements IBookService{
         }
         catch (Exception ex) {
             log.error(ex.getMessage());
-            throw new RequestValidationException("An error occurred. Please try again");
+            throw new RequestValidationException(REQUEST_VALIDATION_ERROR);
         }
     }
 
@@ -74,7 +76,7 @@ public class BookService implements IBookService{
 
             Book bookId = bookStoreRepo.findById(id)
                     .orElseThrow(
-                            () -> new RequestValidationException("An error occurred. Please try again")
+                            () -> new RequestValidationException(REQUEST_VALIDATION_ERROR)
                     );
 
             Book updateBook = Book
@@ -91,7 +93,7 @@ public class BookService implements IBookService{
         }
         catch (Exception ex) {
             log.error(ex.getMessage());
-            throw new BookNotFoundException("An error occurred. Please try again");
+            throw new BookNotFoundException(LIST_FETCHING_ERROR);
         }
     }
 
