@@ -1,5 +1,5 @@
-Online Bookstore API
-This project is a simple online bookstore API built with Java and the Spring Boot framework. It provides endpoints for managing books and integrates with a relational database using JPA. The API documentation is available through Swagger.
+* Online Bookstore API
+# This project is a simple online bookstore API built with Java and the Spring Boot framework. It provides endpoints for managing books and integrates with a relational database using JPA. The API documentation is available through Swagger.
 
 Setup Instructions
 Clone the Repository:
@@ -22,7 +22,8 @@ The application will be accessible at http://localhost:8080.
 
 Swagger Documentation:
 
-Swagger documentation is available at http://localhost:8080/swagger-ui.html.
+Swagger documentation ui is available at http://localhost:8050/swagger-ui/index.html
+Swagger api documentation is available at http://localhost:8050/api-docs
 Design Explanation
 The application follows a three-layer architecture:
 
