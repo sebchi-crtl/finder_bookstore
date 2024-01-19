@@ -29,7 +29,7 @@ class BookServiceTest {
     private BookStoreRepo bookStoreRepo;
 
     @InjectMocks
-    private IBookService bookService;
+    private BookService bookService;
 
     @BeforeEach
     public void setUp() {
