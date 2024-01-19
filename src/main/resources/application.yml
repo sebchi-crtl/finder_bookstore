@@ -8,15 +8,34 @@ server:
 #      file: docker-compose.yml
 
 spring:
-  data:
-    mongodb:
-      host: localhost
-      port: 27017
-      database: bookstore
+  application:
+    name: book-service
+  datasource:
+    password: admin
+    url: jdbc:postgresql://localhost:5434/bookstore
+    username: bookstore
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: 'true'
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: 'true'
+  main:
+    #    allow-bean-definition-overriding: true
+    allow-circular-references: true
+
 
 cors:
   allowed-methods: "*"
   allowed-headers: "*"
+
+app:
+  jwt:
+    my-key: 432646294A404D635166546A576E5A7234753778214125442A472D4B6150645267556B58703273357638792F423F4528482B4D6251655468566D597133743677
+    expiration-in-ms: 864000000
 
 logging:
   level:
