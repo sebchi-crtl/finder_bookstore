@@ -1,132 +1,79 @@
 package com.interview.bookstore.config.jwt;
 
-import com.senxate.config.UserPrincipal;
-import com.senxate.security.SecurityUtils;
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SignatureException;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
-import java.security.Key;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
-import java.util.Set;
-import java.util.function.Function;
+import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.senxate.constant.SecurityConstants.JWT_EXPIRATION_IN_MS;
-import static com.senxate.constant.SecurityConstants.JWT_SECRET;
-
 @Slf4j
-@Component
-public class JwtTokenProvider implements IJwtTokenProvider{
+public class JwtTokenProvider {
 
 
-    @Override
-    public Authentication getAuthentication(HttpServletRequest request) {
-        Claims claims = extractClaims(request);
-        if (claims.isEmpty() || claims == null)
-            return null;
-        String username = claims.getSubject();
-        String userId = claims.get("user_id", String.class);
+    @Value("${app.jwt.my-key}")
+    private static String JWT_SECRET;
+//    @Value("${app.jwt.expiration-in-ms}")
+    private static Long JWT_EXPIRATION_IN_MS = 864000000L;
 
-//        Set<GrantedAuthority> authorities = Arrays.stream(claims.get("roles").toString().split(","))
-//                .map(SecurityUtils::convertToAuthority)
-//                .collect(Collectors.toSet());
+    public static String generateJwtToken(String username, List<GrantedAuthority> authorities) {
+        List<String> roles = authorities.stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
 
-        UserDetails userDetails = User
-                .withUsername(username)
-                .roles("USER")
-                .build();
-
-        if (username == null)
-            return null;
-
-        return new UsernamePasswordAuthentictionToken(
-                userDetails, claims
-        );
+        return Jwts.builder()
+                .setSubject(username)
+                .claim("roles", roles)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + JWT_EXPIRATION_IN_MS)) //10 days
+                .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
+                .compact();
     }
 
-    @Override
-    public boolean isTokenValid(HttpServletRequest request) {
-        Claims claims = extractClaims(request);
+    public static UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
 
-        if (claims == null)
-            return false;
-        if (claims.getExpiration().before(new Date()))
-            return false;
-
-        return true;
-    }
-
-    @Override
-    public boolean validateToken(String token) {
-        try{
-
-            return Jwts
+        if (token != null){
+            String user = Jwts
                     .parserBuilder()
                     .setSigningKey(JWT_SECRET)
                     .build()
-                    .parseClaimsJws(token)
-                    .getBody();
-        }
-        catch (Exception ex) {
-            return false;
-        }
-    }
+                    .parseClaimsJws(token.replace(
+                            "Bearer ", ""))
+                    .getBody()
+                    .getSubject();
 
-    private boolean isTokenExpired(HttpServletRequest request) {
-        return extractExpiration(request).before(new Date());
-    }
-
-    private Date extractExpiration(HttpServletRequest request) {
-        return extractClaim(request, Claims::getExpiration);
-    }
-
-    private <T> T extractClaim(
-            HttpServletRequest request,
-            Function<Claims, T> claimsResolver) {
-        final Claims claims = extractClaims(request);
-        if (claims == null)
+            if (user != null){
+                List<GrantedAuthority> authorities = (List<GrantedAuthority>) Jwts
+                        .parserBuilder()
+                        .setSigningKey(JWT_SECRET)
+                        .build()
+                        .parseClaimsJws(token)
+                        .getBody()
+                        .get("roles", List.class)
+                        .stream()
+                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                        .collect(Collectors.toList());
+                return new UsernamePasswordAuthenticationToken(
+                        user, null, authorities
+                );
+            }
             return null;
-        return claimsResolver.apply(claims);
-    }
-
-    private Claims extractClaims(HttpServletRequest request) {
-        String token = SecurityUtils.extractAuthTokenFromRequest(request);
-
-        try {
-            if (token == null)
-                return null;
-
-            Key key = Keys.hmacShaKeyFor(JWT_SECRET.getBytes(StandardCharsets.UTF_8));
-
-            return Jwts
-                    .parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
-
-        } catch (ExpiredJwtException exception) {
-            log.error("Request to parse expired JWT : {} failed : {}", token, exception.getMessage());
-        } catch (UnsupportedJwtException exception) {
-            log.error("Request to parse unsupported JWT : {} failed : {}", token, exception.getMessage());
-        } catch (MalformedJwtException exception) {
-            log.error("Request to parse invalid JWT : {} failed : {}", token, exception.getMessage());
-        } catch (SignatureException exception) {
-            log.error("Request to parse JWT with invalid signature : {} failed : {}", token, exception.getMessage());
-        } catch (IllegalArgumentException exception) {
-            log.error("Request to parse empty or null JWT : {} failed : {}", token, exception.getMessage());
         }
         return null;
     }
+
+
+
 }

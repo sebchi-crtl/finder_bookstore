@@ -8,15 +8,6 @@ import java.util.List;
 @Component
 public class BookConstant {
 
-    @Value("#{'${cors.allowed-origins}'.split(',')}")
-    public List<String> allowedOrigins;
-    @Value("#{'${cors.allowed-methods}'.split(',')}")
-    public List<String> allowedMethods;
-    @Value("#{'${cors.allowed-headers}'.split(',')}")
-    public List<String> allowedHeaders;
-    @Value("#{'${cors.exposed-headers}'.split(',')}")
-    public List<String> expectedHeaders;
-    public final long MAX_AGE_SECS = 3600L;
     public static final String LIST_FETCHING_ERROR = "error getting list of books. Please contact customer care";
     public static final String BOOK_ID_NOT_FOUND = "book with id [%s] not found: ";
     public static final String SERVER_ERROR = "Internal server error";

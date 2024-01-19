@@ -1,16 +1,14 @@
 package com.interview.bookstore.config.jwt;
 
-import com.senxate.config.UserPrincipal;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.Authentication;
 
 
 public interface IJwtTokenProvider {
 
 
-    Authentication getAuthentication(HttpServletRequest request);
+    String generateJwtToken(Authentication response);
 
-    boolean isTokenValid(HttpServletRequest request);
+    String getUsernameFromToken(String token);
 
     boolean validateToken(String token);
 }

@@ -10,15 +10,15 @@ class BookConstantTest {
     @InjectMocks
     private BookConstant constant;
 
-    @Test
-    public void testAllowedMethods(){
-        assertNotNull(constant.allowedMethods);
-    }
-
-    @Test
-    public void testAllowedHeaders() {
-        assertNotNull(constant.allowedHeaders);
-    }
+//    @Test
+//    public void testAllowedMethods(){
+//        assertNotNull(constant.allowedMethods);
+//    }
+//
+//    @Test
+//    public void testAllowedHeaders() {
+//        assertNotNull(constant.allowedHeaders);
+//    }
 
     @Test
     public void testConstants() {
