@@ -28,10 +28,13 @@ public class BookService implements IBookService{
     @Override
     public List<BookResponseDTO> getAllBooks() {
         try{
-            return bookStoreRepo.findAll()
+            log.info("fetching all books");
+            List<BookResponseDTO> collect = bookStoreRepo
+                    .findAll()
                     .stream()
                     .map(mapper)
                     .collect(Collectors.toList());
+            return collect;
         }
         catch (Exception ex){
             log.error("error fetching" );
@@ -84,7 +87,7 @@ public class BookService implements IBookService{
                     .id(id)
                     .title(request.title() != null ? request.title() : bookId.getTitle())
                     .author(request.author() !=null ? request.author() : bookId.getAuthor())
-                    .available(!request.available() ? bookId.isAvailable() : bookId.isAvailable())
+                    .available(request.available())
                     .dateCreated(bookId.getDateCreated())
                     .build();
 

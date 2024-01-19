@@ -21,9 +21,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class JwtTokenProvider {
 
-
-    @Value("${app.jwt.my-key}")
-    private static String JWT_SECRET;
+    private static String JWT_SECRET = "432646294A404D635166546A576E5A7234753778214125442A472D4B6150645267556B58703273357638792F423F4528482B4D6251655468566D59713374367";
 //    @Value("${app.jwt.expiration-in-ms}")
     private static Long JWT_EXPIRATION_IN_MS = 864000000L;
 
@@ -42,6 +40,8 @@ public class JwtTokenProvider {
     }
 
     public static UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
+        log.info("received to getAuthentication");
+
         String token = request.getHeader("Authorization");
 
         if (token != null){
@@ -53,18 +53,22 @@ public class JwtTokenProvider {
                             "Bearer ", ""))
                     .getBody()
                     .getSubject();
-
+            log.info("token cleared");
             if (user != null){
                 List<GrantedAuthority> authorities = (List<GrantedAuthority>) Jwts
                         .parserBuilder()
                         .setSigningKey(JWT_SECRET)
                         .build()
-                        .parseClaimsJws(token)
+                        .parseClaimsJws(token.replace(
+                                "Bearer ", ""
+                        ))
                         .getBody()
                         .get("roles", List.class)
                         .stream()
                         .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                         .collect(Collectors.toList());
+                log.info("user cleared");
+                log.info(authorities.toString());
                 return new UsernamePasswordAuthenticationToken(
                         user, null, authorities
                 );
