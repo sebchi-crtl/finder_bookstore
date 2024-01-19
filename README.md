@@ -1,8 +1,8 @@
-* Online Bookstore API
-# This project is a simple online bookstore API built with Java and the Spring Boot framework. It provides endpoints for managing books and integrates with a relational database using JPA. The API documentation is available through Swagger.
+## Online Bookstore API
+* This project is a simple online bookstore API built with Java and the Spring Boot framework. It provides endpoints for managing books and integrates with a relational database using JPA. The API documentation is available through Swagger.
 
-Setup Instructions
-Clone the Repository:
+##Setup Instructions
+# Clone the Repository:
 
 bash
 Copy code
